@@ -1,7 +1,14 @@
 package frc.robot;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,9 +22,18 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private Arm m_Arm;
   String codeVersion = "0.0";
+  String trajectoryJSON = "PathWeaver/output/TestPath1.wpilib.json";
+  Trajectory trajectory = new Trajectory();
+
 //commit
   @Override
   public void robotInit() {
+    try {
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+   } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+   }
     m_robotContainer = new RobotContainer();
     
     //camera stuff edited at comp
