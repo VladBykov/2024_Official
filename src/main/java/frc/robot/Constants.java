@@ -1,6 +1,7 @@
 package frc.robot;
 
 public final class Constants {
+    public static final String Swerve = null;
     // Robot
     public static int PHChannel = 30; // REV Pneumatic Hub
     public static int PDHChannel = 20; // REV Power Distribution Hub
