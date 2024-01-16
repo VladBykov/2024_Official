@@ -33,7 +33,7 @@ public final class Constants {
     }
 
     public class SwerveAndDriveConstants {
-        public final static double kSwerveMaxAcceleration = 2 * Math.PI;
+        public final static double kSwerveMaxAcceleration = 2 * Math.PI; // radians per second squared WP this seemed to work don't know why // 3.68 meters per second or 12.1 ft/s (max speed of SDS Mk3 with Neo motor)
         public final static double kSwerveMaxSpeed = 1;
         public final static double kChassisMaxSpeed = Math.PI / 3; // 1/2 rotation per second
         public final static double kChassisMaxAcceleration = Math.PI / 3;
@@ -48,14 +48,10 @@ public final class Constants {
         public final static Translation2d frontLeftLocation = new Translation2d(0.285, 0.285);
         public final static Translation2d backLeftLocation = new Translation2d(-0.285, 0.285);
         public final static Translation2d backRightLocation = new Translation2d(-0.285, -0.285);
-        public final static double kModuleMaxAngularAcceleration = 2 * Math.PI; // radians per second squared 
-         // WP this seemed to work don't know why // 3.68 meters per second or 12.1 ft/s (max speed of SDS Mk3 with Neo motor)
-       
+   
         public final static double rpstoPositionScaler = (RobotConstants.kWheelCircumference * ConversionConstants.driveEncoderCtsperRev) / (2 * Math.PI);// First thought for ratio = (Constants.kWheelDiameterM * Constants.NeoEncoderCountsPerRev) / (Constants.GearRatio * (Math.PI * 2));
         public final static double rpmToVelocityScaler = 3 * (RobotConstants.kWheelCircumference / RobotConstants.GearRatioMK3)/ 60; // SDS Mk3 standard gear ratio from motor to wheel, divide by 60 to go from secs to mins
     }
-    
-    //public static final double kModuleMaxAngularAcceleration = Math.PI / 3; where do we get this value from???????????????, Would be in Swerve Constants
     
 
     public class RobotConstants {

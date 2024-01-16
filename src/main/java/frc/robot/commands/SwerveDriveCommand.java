@@ -12,13 +12,13 @@ import frc.robot.Constants.MiscConstants;
 import frc.robot.Constants.SwerveAndDriveConstants;
 
 public class SwerveDriveCommand extends Command {
-  DoubleSupplier leftY;
-  DoubleSupplier leftX;
-  DoubleSupplier rightX;
+  DoubleSupplier m_leftY;
+  DoubleSupplier m_leftX;
+  DoubleSupplier m_rightX;
   // double leftY;
   // double leftX;
   // double rightX;
-  DriveTrain DriveTrain;
+  DriveTrain m_DriveTrain;
   RobotContainer RobotContainer;
   // double x;
   // double y;
@@ -31,18 +31,18 @@ public class SwerveDriveCommand extends Command {
    * Creates a constructor for our SwerveDriveCommand<br>
    * <br>
    * This tells the robot to drive
-   * @param leftY
-   * @param leftX
-   * @param rightX
-   * @param DriveTrain
+   * @param _leftY
+   * @param _leftX
+   * @param _rightX
+   * @param m_DriveTrain
    */
-  public SwerveDriveCommand(DoubleSupplier leftY, DoubleSupplier leftX, DoubleSupplier rightX,
-    DriveTrain DriveTrain) {
-    this.leftY = leftY;
-    this.leftX = leftX;
-    this.rightX = rightX;
-    this.DriveTrain = DriveTrain;
-    addRequirements(this.DriveTrain);
+  public SwerveDriveCommand(DoubleSupplier _leftY, DoubleSupplier _leftX, DoubleSupplier _rightX,
+    DriveTrain _DriveTrain) {
+    m_leftY = _leftY;
+    m_leftX = _leftX;
+    m_rightX = _rightX;
+    m_DriveTrain = _DriveTrain;
+    addRequirements(m_DriveTrain);
   }
 
   // Called when the command is initially scheduled.
@@ -63,9 +63,9 @@ public class SwerveDriveCommand extends Command {
     Double x;
     Double y;
     Double rotation;
-    Double leftX = this.leftX.getAsDouble();
-    Double leftY = this.leftY.getAsDouble();
-    Double rightX = this.rightX.getAsDouble();
+    Double leftX = m_leftX.getAsDouble();
+    Double leftY = m_leftY.getAsDouble();
+    Double rightX = m_rightX.getAsDouble();
     // System.out.println();
 
     // Finds the X Value of the Left Stick on the Controller and Takes Care of
@@ -94,8 +94,8 @@ public class SwerveDriveCommand extends Command {
 
     // Swerve drive uses a different Y and X than expected!
 
-    DriveTrain.drive(y, x, rotation, SwerveAndDriveConstants.FieldRelativeEnable, SwerveAndDriveConstants.WheelLock);
-    Pose2d pose = DriveTrain.GetPose2d();
+    m_DriveTrain.drive(y, x, rotation, SwerveAndDriveConstants.FieldRelativeEnable, SwerveAndDriveConstants.WheelLock);
+    Pose2d pose = m_DriveTrain.GetPose2d();
     System.out.println(pose);
   }
 

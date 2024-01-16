@@ -27,14 +27,14 @@ import frc.robot.Constants.SwerveAndDriveConstants;
 public class SwerveModule extends SubsystemBase {
 
     // kWheelCircumference used to be
-   public final CANSparkMax driveMotor;
-   public final CANSparkMax turningMotor;
-   private final SparkPIDController drivePID;
+   public final CANSparkMax m_driveMotor;
+   public final CANSparkMax m_turningMotor;
+   private final SparkPIDController m_drivePID;
    private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(1, 0, 0, SwerveAndDriveConstants.kSwervethetaConstraints);   // Gains are for example purposes only - must be determined for your own robot!
-   public final RelativeEncoder driveEncoder;
-   private final DutyCycleEncoder turningEncoder;
-   private final DigitalInput TurnEncoderInput;
-   public final DutyCycle TurnPWMEncoder;
+   public final RelativeEncoder m_driveEncoder;
+   private final DutyCycleEncoder m_turningEncoder;
+   private final DigitalInput m_TurnEncoderInput;
+   public final DutyCycle m_TurnPWMEncoder;
  
     /**
      * Constructs a SwerveModule with a drive motor, turning motor, drive encoder
@@ -42,38 +42,38 @@ public class SwerveModule extends SubsystemBase {
      *
      * @param driveMotorChannel     CAN ID for the drive motor.
      * @param turningMotorChannel   CAN ID for the turning motor.
-     * @param driveEncoder          DIO input for the drive encoder channel A
+     * @param m_driveEncoder          DIO input for the drive encoder channel A
      * @param turnEncoderPWMChannel DIO input for the drive encoder channel B
      * @param turnOffset            offset from 0 to 1 for the home position of the
      *                              encoder
      */
      public SwerveModule(int driveMotorChannel, int turningMotorChannel, int turnEncoderPWMChannel, double turnOffset) {
-        driveMotor = new CANSparkMax(driveMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
-        turningMotor = new CANSparkMax(turningMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
-        driveMotor.setOpenLoopRampRate(0.1);
-        drivePID = driveMotor.getPIDController();
-        drivePID.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-        drivePID.setSmartMotionMaxAccel(0.2, 0);
-        drivePID.setReference(0, CANSparkMax.ControlType.kSmartMotion);
-        driveEncoder = driveMotor.getEncoder();
-        driveEncoder.setPositionConversionFactor(SwerveAndDriveConstants.rpstoPositionScaler);
-        driveEncoder.setVelocityConversionFactor(SwerveAndDriveConstants.rpmToVelocityScaler);
+        m_driveMotor = new CANSparkMax(driveMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
+        m_turningMotor = new CANSparkMax(turningMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
+        m_driveMotor.setOpenLoopRampRate(0.1);
+        m_drivePID = m_driveMotor.getPIDController();
+        m_drivePID.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+        m_drivePID.setSmartMotionMaxAccel(0.2, 0);
+        m_drivePID.setReference(0, CANSparkMax.ControlType.kSmartMotion);
+        m_driveEncoder = m_driveMotor.getEncoder();
+        m_driveEncoder.setPositionConversionFactor(SwerveAndDriveConstants.rpstoPositionScaler);
+        m_driveEncoder.setVelocityConversionFactor(SwerveAndDriveConstants.rpmToVelocityScaler);
         SwerveAndDriveConstants.turnEncoderPWMChannel = turnEncoderPWMChannel;
-        TurnEncoderInput = new DigitalInput(turnEncoderPWMChannel);
-        TurnPWMEncoder = new DutyCycle(TurnEncoderInput);
+        m_TurnEncoderInput = new DigitalInput(turnEncoderPWMChannel);
+        m_TurnPWMEncoder = new DutyCycle(m_TurnEncoderInput);
         SwerveAndDriveConstants.turnEncoderOffset = turnOffset;
-        turningEncoder = new DutyCycleEncoder(TurnPWMEncoder);
+        m_turningEncoder = new DutyCycleEncoder(m_TurnPWMEncoder);
 
         // Limit the PID Controller's input range between -pi and pi and set the input to be continuous.
         m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
         //SwerveAndDriveConstants.encoderBias = driveEncoder.getPosition(); //Whats the encoder Bias? //TODO
 
-        driveEncoder.setPosition(0);
-        turningEncoder.reset();
+        m_driveEncoder.setPosition(0);
+        m_turningEncoder.reset();
     }
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            driveEncoder.getPosition(), new Rotation2d(getTurnEncoderRadians()));
+            m_driveEncoder.getPosition(), new Rotation2d(getTurnEncoderRadians()));
       }
     /**
      * Returns the current state of the module.
@@ -83,14 +83,14 @@ public class SwerveModule extends SubsystemBase {
     public SwerveModuleState getState() {
         // the getVelocity() function normally returns RPM but is scaled in the
         // SwerveModule constructor to return actual wheel speed
-        return new SwerveModuleState(driveEncoder.getVelocity(), new Rotation2d(getTurnEncoderRadians()));
+        return new SwerveModuleState(m_driveEncoder.getVelocity(), new Rotation2d(getTurnEncoderRadians()));
     } 
 /**
  * Gets a distance of where a module wants to get to. 
  * @return a SwerveModuleState
  */
     public SwerveModuleState getDifferentState() {
-        return new SwerveModuleState((driveEncoder.getPosition() - SwerveAndDriveConstants.encoderBias) * SwerveAndDriveConstants.rpmToVelocityScaler * 60,
+        return new SwerveModuleState((m_driveEncoder.getPosition() - SwerveAndDriveConstants.encoderBias) * SwerveAndDriveConstants.rpmToVelocityScaler * 60,
                 new Rotation2d(getTurnEncoderRadians()));
     }
 
@@ -108,8 +108,8 @@ public class SwerveModule extends SubsystemBase {
         final double signedAngleDifference = closestAngleCalculator(getTurnEncoderRadians(), state.angle.getRadians());
         double rotateMotorPercentPower = signedAngleDifference / (2 * Math.PI); // proportion error control //2
 
-        driveMotor.set((state.speedMetersPerSecond / SwerveAndDriveConstants.kSwerveMaxSpeed) * Math.cos(rotateMotorPercentPower));
-        turningMotor.set(1.6 * rotateMotorPercentPower);
+        m_driveMotor.set((state.speedMetersPerSecond / SwerveAndDriveConstants.kSwerveMaxSpeed) * Math.cos(rotateMotorPercentPower));
+        m_turningMotor.set(1.6 * rotateMotorPercentPower);
     }
 
     /**
@@ -119,8 +119,8 @@ public class SwerveModule extends SubsystemBase {
      * @return Angle of the absolute encoder in radians
      */
     private double getTurnEncoderRadians() {
-        double appliedOffset = (TurnPWMEncoder.getOutput() - SwerveAndDriveConstants.turnEncoderOffset) % 1;
-        SmartDashboard.putNumber("PWMChannel " + Integer.toString(SwerveAndDriveConstants.turnEncoderPWMChannel), TurnPWMEncoder.getOutput());
+        double appliedOffset = (m_TurnPWMEncoder.getOutput() - SwerveAndDriveConstants.turnEncoderOffset) % 1;
+        SmartDashboard.putNumber("PWMChannel " + Integer.toString(SwerveAndDriveConstants.turnEncoderPWMChannel), m_TurnPWMEncoder.getOutput());
         return appliedOffset * 2 * Math.PI;
     }
 
@@ -162,8 +162,8 @@ public class SwerveModule extends SubsystemBase {
      * Tells our motors to stop
      */
     public void stop(){
-        driveMotor.set(0);
-        turningMotor.set(0);
+        m_driveMotor.set(0);
+        m_turningMotor.set(0);
     }
 
 
