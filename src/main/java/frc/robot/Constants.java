@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.subsystems.DriveTrainPID;
 
+
 public final class Constants {
 
     // Robot
@@ -35,6 +36,7 @@ public final class Constants {
     public static double NeoEncoderCountsPerRev = 42;
     public static double NeoRevPerEncoderCounts = 1/NeoEncoderCountsPerRev;
     //MISC
+    public static double NeoMaxRpm = 5676;
     public static double MetersToInches = Meters.of(1.0).in(Inches);
     public static double InchesToMeters = Inches.of(1.0).in(Meters);
     public static double MagEncoderCountsPerRev = 4096; 

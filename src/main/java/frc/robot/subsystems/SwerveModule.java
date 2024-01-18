@@ -21,9 +21,12 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+
+
 /**
  * This is the code to run a single swerve module <br>
  * <br>
@@ -53,7 +56,16 @@ public class SwerveModule extends SubsystemBase {
     private double encoderBias = 0; // encoder stuff for rotation
     private int turnPWMChannel;
 
-    // Gains are for example purposes only - must be determined for your own robot!
+    //pid stuff added 1-18-24
+    public double m_NeoMaxRPM = Constants.NeoMaxRpm;
+    private double kP = 1;
+    private double kI = 0;
+    private double kD = 0;
+    private double kIz = 0;
+    private double kFF = 0.01;
+    private double kMaxOutput = 1;
+    private double kMinOutput = -1; 
+// Gains are for example purposes only - must be determined for your own robot!
     private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(1, 0, 0,
             new TrapezoidProfile.Constraints(kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
 
@@ -68,29 +80,42 @@ public class SwerveModule extends SubsystemBase {
      * @param turnOffset            offset from 0 to 1 for the home position of the
      *                              encoder
      */
-    /*
-     * private void intizialze(){
-     * m_turningPIDController.reset(new
-     * TrapezoidProfile.Constraints(kModuleMaxAngularVelocity,
-     * kModuleMaxAngularAcceleration));
-     * }
-     */
-    @Override
-    public void periodic() {
-        //m_turningEncoder.getCountsPerRevolution();
-        super.periodic();
-    }
+    
+     
+    
+    
      public SwerveModule(int driveMotorChannel, int turningMotorChannel, int turnEncoderPWMChannel, double turnOffset) {
         // can spark max motor controller objects
+        SmartDashboard.putNumber("P Gain", kP);
+        SmartDashboard.putNumber("I Gain", kI);
+        SmartDashboard.putNumber("D Gain", kD);
+        SmartDashboard.putNumber("I Zone", kIz);
+        SmartDashboard.putNumber("Feed Forward", kFF);
+        SmartDashboard.putNumber("Max Output", kMaxOutput);
+        SmartDashboard.putNumber("Min Output", kMinOutput);
         m_driveMotor = new CANSparkMax(driveMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
         m_turningMotor = new CANSparkMax(turningMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
 
         m_driveMotor.setOpenLoopRampRate(0.1);
        
         m_drivePID = m_driveMotor.getPIDController();
+
+        //1-18-24 added for pid
+        m_drivePID.setP(kP);
+        m_drivePID.setI(kI);
+        m_drivePID.setD(kD);
+        m_drivePID.setIZone(kIz);
+        m_drivePID.setFF(kFF);
+        m_drivePID.setOutputRange(kMinOutput, kMaxOutput);
+
         m_drivePID.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
         m_drivePID.setSmartMotionMaxAccel(0.2, 0);
         m_drivePID.setReference(0, CANSparkMax.ControlType.kSmartMotion);
+
+        //if coefficient changes
+
+
+
         // m_drivePID.setReference(0, CANSparkMax
         
         //m_turningEncoder.setPositionConversionFactor(1/4096);
@@ -124,6 +149,43 @@ public class SwerveModule extends SubsystemBase {
         m_driveEncoder.setPosition(0);
         m_turningEncoder.reset();
     }
+    public void periodic() {
+        
+        double p = SmartDashboard.getNumber("P Gain", 0);
+        double i = SmartDashboard.getNumber("I Gain", 0);
+        double d = SmartDashboard.getNumber("D Gain", 0);
+        double iz = SmartDashboard.getNumber("I Zone", 0);
+        double ff = SmartDashboard.getNumber("Feed Forward", 0);
+        double max = SmartDashboard.getNumber("Max Output", 0);
+        double min = SmartDashboard.getNumber("Min Output", 0);
+        //m_turningEncoder.getCountsPerRevolution();
+        super.periodic();
+
+
+        //if change of PID coefficient
+
+        if((p != kP)) { m_drivePID.setP(p); kP = p; }
+        if((i != kI)) { m_drivePID.setI(i); kI = i; }
+        if((d != kD)) { m_drivePID.setD(d); kD = d; }
+        if((iz != kIz)) { m_drivePID.setIZone(iz); kIz = iz; }
+        if((ff != kFF)) { m_drivePID.setFF(ff); kFF = ff; }
+        if((max != kMaxOutput) || (min != kMinOutput)) { 
+          m_drivePID.setOutputRange(min, max); 
+          kMinOutput = min; kMaxOutput = max; 
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
             m_driveEncoder.getPosition(), new Rotation2d(getTurnEncoderRadians()));
