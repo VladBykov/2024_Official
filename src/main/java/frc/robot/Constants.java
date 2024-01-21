@@ -31,6 +31,7 @@ public final class Constants {
     public static int PHChannel = 30; // REV Pneumatic Hub
     public static int PDHChannel = 20; // REV Power Distribution Hub
     public static double kWheelDiameterM = Inches.of(4).in(Meters); // 4 Inches
+    public static double kWheelradiusM = kWheelDiameterM / 2; // 4 Inches
     public static double kWheelCircumference = Math.PI * kWheelDiameterM; //this is in meters
     // 1 meter = Inches 39.3701
     public static double NeoEncoderCountsPerRev = 42;

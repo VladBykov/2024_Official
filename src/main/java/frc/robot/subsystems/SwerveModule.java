@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType; //TODO Was giving us weird error 
@@ -25,7 +26,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-
+import frc.robot.RobotContainer;
+import edu.wpi.first.wpilibj.XboxController;
 /**
  * This is the code to run a single swerve module <br>
  * <br>
@@ -33,20 +35,17 @@ import frc.robot.Constants;
  */
 public class SwerveModule extends SubsystemBase {
 
-    private static final double rpstoPositionScaler = (Constants.kWheelCircumference * Constants.driveEncoderCtsperRev)
-            / (2 * Math.PI);// (Constants.kWheelDiameterM * Constants.NeoEncoderCountsPerRev) /
+   // private static final double rpstoPositionScaler = (Constants.kWheelCircumference * Constants.driveEncoderCtsperRev)
+    //        / (2 * Math.PI);// (Constants.kWheelDiameterM * Constants.NeoEncoderCountsPerRev) /
                             // (Constants.GearRatio * (Math.PI * 2));
-    private static final double rpmToVelocityScaler = 3 * (Constants.kWheelCircumference / Constants.GearRatio) / 60; // SDS
+    //private static final double rpmToVelocityScaler = 3 * (Constants.kWheelCircumference / Constants.GearRatio) / 60; // SDS
                                                                                                                       // Mk3
-                                                                                                                      // standard
-                                                                                                                      // gear
-                                                                                                                      // ratio
-                                                                                                                      // WAS
-                                                                                                                      // 6.12
-                                                                                                                      // CHANGE
-                                                                                                                      // IF
-                                                                                                                      // STUFF
-                                                                                                                      // GOES
+                                                                                     // standard
+    private static final double rpmToVelocityScaler = (2 * Math.PI * Constants.kWheelDiameterM / Constants.NeoEncoderCountsPerRev);
+    XboxController m_xboxController = new XboxController(1);
+    
+    // gear
+                                                                                                     // GOES
                                                                                                                       // WRONG
                                                                                                                       // TODO
     // from motor to wheel, divide
@@ -60,7 +59,7 @@ public class SwerveModule extends SubsystemBase {
     public final CANSparkMax m_turningMotor;
 
     private final SparkPIDController m_drivePID;
-
+  
     public final RelativeEncoder m_driveEncoder;
     private final DutyCycleEncoder m_turningEncoder;
     private final DigitalInput m_TurnEncoderInput;
@@ -96,6 +95,7 @@ public class SwerveModule extends SubsystemBase {
 
     public SwerveModule(int driveMotorChannel, int turningMotorChannel, int turnEncoderPWMChannel, double turnOffset) {
         // can spark max motor controller objects
+        
         SmartDashboard.putNumber("P Gain", kP);
         SmartDashboard.putNumber("I Gain", kI);
         SmartDashboard.putNumber("D Gain", kD);
@@ -199,11 +199,11 @@ public class SwerveModule extends SubsystemBase {
         // SwerveModule constructor to return actual wheel speed
         return new SwerveModuleState(m_driveEncoder.getVelocity(), new Rotation2d(getTurnEncoderRadians()));
     }
-
+//TODO figure this out 
     public SwerveModuleState getDifferentState() { // TIMES 60 TO CONVERRT FROM MINUTES TO SECONDS
         return new SwerveModuleState((m_driveEncoder.getPosition() - encoderBias) * rpmToVelocityScaler * 60,
                 new Rotation2d(getTurnEncoderRadians()));
-    }
+   }
 
     /**
      * Sets the desired state for the module.
@@ -213,19 +213,17 @@ public class SwerveModule extends SubsystemBase {
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the reference state to avoid spinning further than 90 degrees
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getTurnEncoderRadians()));
-
+        double LeftY = m_xboxController.getLeftY();
+        double maxrpm = 5767;
         // Calculate the drive output from the drive PID controller.
-        // final double driveOutput = m_drivePIDController.calculate(
-        // m_driveEncoder.getVelocity(), state.speedMetersPerSecond );
-
+        
         final double signedAngleDifference = closestAngleCalculator(getTurnEncoderRadians(), state.angle.getRadians());
         double rotateMotorPercentPower = signedAngleDifference / (2 * Math.PI); // proportion error control //2
-
-        m_drivePID.setReference(
-                (state.speedMetersPerSecond / DriveTrainPID.kMaxSpeed),
-                CANSparkMax.ControlType.kVelocity);
-
+        double setpoint = LeftY * maxrpm;
+        m_drivePID.setReference(setpoint, CANSparkBase.ControlType.kVelocity);
+        
         m_turningMotor.set(1.6 * rotateMotorPercentPower);
+        
     }
 
     /**
