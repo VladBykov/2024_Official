@@ -56,7 +56,7 @@ public class SwerveModule extends SubsystemBase {
     public static final double kModuleMaxAngularAcceleration = 2 * Math.PI; // radians per second squared
 
     public final CANSparkMax m_driveMotor;
-    //public final CANSparkMax m_turningMotor;
+    public final CANSparkMax m_turningMotor;
 
     private final SparkPIDController m_drivePID;
   
@@ -104,7 +104,7 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber("Max Output", kMaxOutput);
         SmartDashboard.putNumber("Min Output", kMinOutput);
         m_driveMotor = new CANSparkMax(driveMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
-        //m_turningMotor = new CANSparkMax(turningMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
+        m_turningMotor = new CANSparkMax(turningMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
 
         //m_driveMotor.setOpenLoopRampRate(0.1);
         m_driveMotor.restoreFactoryDefaults();
@@ -212,16 +212,18 @@ public class SwerveModule extends SubsystemBase {
      */
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the reference state to avoid spinning further than 90 degrees
-        
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getTurnEncoderRadians()));
         double LeftY = m_xboxController.getLeftY();
         double maxrpm = 5767; 
         double setpoint = LeftY * maxrpm;
+        final double signedAngleDifference = closestAngleCalculator(getTurnEncoderRadians(), state.angle.getRadians());
+        double rotateMotorPercentPower = signedAngleDifference / (2 * Math.PI); // proportion error control //2	        double maxrpm = 5767; 
         m_drivePID.setReference(setpoint, CANSparkBase.ControlType.kVelocity);
-        
+          m_turningMotor.set(1.6 * rotateMotorPercentPower);
+    
         SmartDashboard.putNumber("SetPoint", setpoint);
           SmartDashboard.putNumber("SetPoin32434234t", LeftY);
 
-        
     }
 
     /**
