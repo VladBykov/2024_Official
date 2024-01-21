@@ -42,7 +42,7 @@ public class SwerveModule extends SubsystemBase {
                                                                                                                       // Mk3
                                                                                      // standard
     private static final double rpmToVelocityScaler = (2 * Math.PI * Constants.kWheelDiameterM / Constants.NeoEncoderCountsPerRev);
-    XboxController m_xboxController = new XboxController(1);
+    XboxController m_xboxController = new XboxController(0);
     
     // gear
                                                                                                      // GOES
@@ -56,7 +56,7 @@ public class SwerveModule extends SubsystemBase {
     public static final double kModuleMaxAngularAcceleration = 2 * Math.PI; // radians per second squared
 
     public final CANSparkMax m_driveMotor;
-    public final CANSparkMax m_turningMotor;
+    //public final CANSparkMax m_turningMotor;
 
     private final SparkPIDController m_drivePID;
   
@@ -70,11 +70,11 @@ public class SwerveModule extends SubsystemBase {
 
     // pid stuff added 1-18-24
     public double m_NeoMaxRPM = Constants.NeoMaxRpm;
-    private double kP = 0.5;
+    private double kP = 6e-5;
     private double kI = 0;
     private double kD = 0;
     private double kIz = 0;
-    private double kFF = 0.0;
+    private double kFF = 0.000015;
     private double kMaxOutput = 1;
     private double kMinOutput = -kMaxOutput;
     // Gains are for example purposes only - must be determined for your own robot!
@@ -104,10 +104,10 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber("Max Output", kMaxOutput);
         SmartDashboard.putNumber("Min Output", kMinOutput);
         m_driveMotor = new CANSparkMax(driveMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
-        m_turningMotor = new CANSparkMax(turningMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
+        //m_turningMotor = new CANSparkMax(turningMotorChannel, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
 
-        m_driveMotor.setOpenLoopRampRate(0.1);
-
+        //m_driveMotor.setOpenLoopRampRate(0.1);
+        m_driveMotor.restoreFactoryDefaults();
         m_drivePID = m_driveMotor.getPIDController();
 
         // 1-18-24 added for pid
@@ -120,7 +120,7 @@ public class SwerveModule extends SubsystemBase {
 
         // m_drivePID.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
         // m_drivePID.setSmartMotionMaxAccel(0.2, 0);
-        m_drivePID.setReference(0, CANSparkMax.ControlType.kVelocity);
+       // m_drivePID.setReference(0, CANSparkMax.ControlType.kVelocity);
 
         // if coefficient changes
 
@@ -158,13 +158,13 @@ public class SwerveModule extends SubsystemBase {
 
     public void periodic() {
 
-        // double p = SmartDashboard.getNumber("P Gain", 1);
-        // double i = SmartDashboard.getNumber("I Gain", 0);
-        // double d = SmartDashboard.getNumber("D Gain", 0);
-        // double iz = SmartDashboard.getNumber("I Zone", 0);
-        // double ff = SmartDashboard.getNumber("Feed Forward", .00001);
-        // double max = SmartDashboard.getNumber("Max Output", 1);
-        // double min = SmartDashboard.getNumber("Min Output", -1);
+        double p = SmartDashboard.getNumber("P Gain", 1);
+        double i = SmartDashboard.getNumber("I Gain", 0);
+        double d = SmartDashboard.getNumber("D Gain", 0);
+        double iz = SmartDashboard.getNumber("I Zone", 0);
+        double ff = SmartDashboard.getNumber("Feed Forward", .00001);
+        double max = SmartDashboard.getNumber("Max Output", 1);
+        double min = SmartDashboard.getNumber("Min Output", -1);
         // m_turningEncoder.getCountsPerRevolution();
         super.periodic();
 
@@ -173,15 +173,15 @@ public class SwerveModule extends SubsystemBase {
 
         // if change of PID coefficient
 
-        // if((p != kP)) { m_drivePID.setP(p); kP = p; }
-        // if((i != kI)) { m_drivePID.setI(i); kI = i; }
-        // if((d != kD)) { m_drivePID.setD(d); kD = d; }
-        // if((iz != kIz)) { m_drivePID.setIZone(iz); kIz = iz; }
-        // if((ff != kFF)) { m_drivePID.setFF(ff); kFF = ff; }
-        // if((max != kMaxOutput) || (min != kMinOutput)) {
-        // m_drivePID.setOutputRange(min, max);
-        // kMinOutput = min; kMaxOutput = max;
-        // }
+         if((p != kP)) { m_drivePID.setP(p); kP = p; }
+         if((i != kI)) { m_drivePID.setI(i); kI = i; }
+         if((d != kD)) { m_drivePID.setD(d); kD = d; }
+         if((iz != kIz)) { m_drivePID.setIZone(iz); kIz = iz; }
+         if((ff != kFF)) { m_drivePID.setFF(ff); kFF = ff; }
+         if((max != kMaxOutput) || (min != kMinOutput)) {
+         m_drivePID.setOutputRange(min, max);
+         kMinOutput = min; kMaxOutput = max;
+         }
     }
 
     public SwerveModulePosition getPosition() {
@@ -212,17 +212,15 @@ public class SwerveModule extends SubsystemBase {
      */
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the reference state to avoid spinning further than 90 degrees
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getTurnEncoderRadians()));
-        double LeftY = m_xboxController.getLeftY();
-        double maxrpm = 5767;
-        // Calculate the drive output from the drive PID controller.
         
-        final double signedAngleDifference = closestAngleCalculator(getTurnEncoderRadians(), state.angle.getRadians());
-        double rotateMotorPercentPower = signedAngleDifference / (2 * Math.PI); // proportion error control //2
+        double LeftY = m_xboxController.getLeftY();
+        double maxrpm = 5767; 
         double setpoint = LeftY * maxrpm;
         m_drivePID.setReference(setpoint, CANSparkBase.ControlType.kVelocity);
         
-        m_turningMotor.set(1.6 * rotateMotorPercentPower);
+        SmartDashboard.putNumber("SetPoint", setpoint);
+          SmartDashboard.putNumber("SetPoin32434234t", LeftY);
+
         
     }
 
@@ -283,6 +281,6 @@ public class SwerveModule extends SubsystemBase {
 
     public void stop() {
         m_driveMotor.set(0);
-        m_turningMotor.set(0);
+        //m_turningMotor.set(0);
     }
 }
