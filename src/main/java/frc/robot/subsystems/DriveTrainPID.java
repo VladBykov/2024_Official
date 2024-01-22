@@ -33,7 +33,7 @@ public class DriveTrainPID extends SubsystemBase {
   public SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(DriveTrainPID.m_frontLeftLocation,
   DriveTrainPID.m_frontRightLocation, DriveTrainPID.m_backLeftLocation, DriveTrainPID.m_backRightLocation);
 
-  public boolean WheelLock = false;
+  public static boolean WheelLock = false;
   public boolean FieldRelativeEnable = true;
   public static final double kMaxSpeed = 3.68; // WP this seemed to work don't know why // 3.68 meters per second or 12.1
                                             // ft/s (max speed of SDS Mk3 with Neo motor)
@@ -158,9 +158,15 @@ public class DriveTrainPID extends SubsystemBase {
   @SuppressWarnings("ParameterName")
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean defenseHoldingMode) {
     
-    SmartDashboard.putNumber("Commanded X Speed", xSpeed);
-    SmartDashboard.putNumber("Commanded Y Speed", ySpeed);
+    double chassisXSpeed = xSpeed * kMaxSpeed;
+    double chassisYSpeed = ySpeed * kMaxSpeed;
+    
+    SmartDashboard.putNumber("Commanded X Speed", chassisXSpeed);
+    SmartDashboard.putNumber("Commanded Y Speed", chassisYSpeed);
     SmartDashboard.putBoolean("Field Oriented?", fieldRelative);
+    SmartDashboard.putNumber("Commanded rot Speed",rot);
+ 
+   
     // double angleOffset = DriverStation.getAlliance().toString() == "Blue" ?
     // Math.PI/2 : -Math.PI/2;
     // SmartDashboard.putString("isRed",
@@ -172,7 +178,11 @@ public class DriveTrainPID extends SubsystemBase {
                                                                                   // Rotation2d(navx.getRotation2d().getDegrees()
                                                                                   // + 180) : navx.getRotation2d();
     // SmartDashboard.putNumber ( "inputRotiation", robotRotation.getDegrees());
-   var swerveModuleStates = Constants.m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, robotRotation): new ChassisSpeeds(xSpeed, ySpeed, rot));
+   var swerveModuleStates = Constants.m_kinematics.toSwerveModuleStates(
+      fieldRelative ? 
+      ChassisSpeeds.fromFieldRelativeSpeeds(chassisXSpeed, chassisYSpeed, rot, robotRotation)
+      : new ChassisSpeeds(chassisXSpeed, chassisYSpeed, rot)
+    );
     // System.out.println(defenseHoldingMode);
     
 
