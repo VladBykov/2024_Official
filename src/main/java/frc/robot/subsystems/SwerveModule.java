@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
-
+import frc.robot.subsystems.*;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -41,8 +41,11 @@ public class SwerveModule extends SubsystemBase {
     //private static final double rpmToVelocityScaler = 3 * (Constants.kWheelCircumference / Constants.GearRatio) / 60; // SDS
                                                                                                                       // Mk3
                                                                                      // standard
-    private static final double rpmToVelocityScaler = (2 * Math.PI * Constants.kWheelDiameterM / Constants.NeoEncoderCountsPerRev);
+    private static final double rpmToVelocityScaler = (Constants.kWheelDiameterM*Math.PI) / Constants.GearRatio / 60;
     XboxController m_xboxController = new XboxController(0);
+
+    public static final double revMaxMotorMaxRPM = 5676.0;
+    public static final double revMaxMotorMaxSpeed = revMaxMotorMaxRPM * rpmToVelocityScaler;
     
     // gear
                                                                                                      // GOES
@@ -70,7 +73,7 @@ public class SwerveModule extends SubsystemBase {
 
     // pid stuff added 1-18-24
     public double m_NeoMaxRPM = Constants.NeoMaxRpm;
-    private double kP = 6e-5;
+    private double kP = 0.3;
     private double kI = 0;
     private double kD = 0;
     private double kIz = 0;
@@ -130,7 +133,8 @@ public class SwerveModule extends SubsystemBase {
         m_driveEncoder = m_driveMotor.getEncoder();
         // m_driveEncoder.setPositionConversionFactor(rpstoPositionScaler);
 
-        m_driveEncoder.setVelocityConversionFactor(rpmToVelocityScaler);
+       m_driveEncoder.setVelocityConversionFactor(rpmToVelocityScaler);
+       SmartDashboard.putNumber("RPM Conversion Factor", rpmToVelocityScaler);
         // m_driveEncoder.setPositionConversionFactor((1/4096)/(8.14)); // encoder rev
         // per rotation / gear ratio
         // limit power to motors 3/25/23
@@ -158,18 +162,18 @@ public class SwerveModule extends SubsystemBase {
 
     public void periodic() {
 
-        double p = SmartDashboard.getNumber("P Gain", 1);
-        double i = SmartDashboard.getNumber("I Gain", 0);
-        double d = SmartDashboard.getNumber("D Gain", 0);
-        double iz = SmartDashboard.getNumber("I Zone", 0);
-        double ff = SmartDashboard.getNumber("Feed Forward", .00001);
-        double max = SmartDashboard.getNumber("Max Output", 1);
-        double min = SmartDashboard.getNumber("Min Output", -1);
+        double p = SmartDashboard.getNumber("P Gain", kP);
+        double i = SmartDashboard.getNumber("I Gain", kI);
+        double d = SmartDashboard.getNumber("D Gain", kI);
+        double iz = SmartDashboard.getNumber("I Zone", kIz);
+        double ff = SmartDashboard.getNumber("Feed Forward", kFF);
+        double max = SmartDashboard.getNumber("Max Output", kMaxOutput);
+        double min = SmartDashboard.getNumber("Min Output", kMinOutput);
         // m_turningEncoder.getCountsPerRevolution();
         super.periodic();
 
-        SmartDashboard.putNumber("Drive Motor Speed (Mot.)", m_driveMotor.getAppliedOutput());
-        SmartDashboard.putNumber("Drive Motor Speed (Enc.)", m_driveEncoder.getVelocity());
+        SmartDashboard.putNumber("Drive Motor Speed (Mot.) Device:" + m_driveMotor.getDeviceId(), m_driveMotor.getAppliedOutput());
+        SmartDashboard.putNumber("Drive Motor Speed (Enc.) Device:" + m_driveMotor.getDeviceId(), m_driveEncoder.getVelocity());
 
         // if change of PID coefficient
 
@@ -179,10 +183,11 @@ public class SwerveModule extends SubsystemBase {
          if((iz != kIz)) { m_drivePID.setIZone(iz); kIz = iz; }
          if((ff != kFF)) { m_drivePID.setFF(ff); kFF = ff; }
          if((max != kMaxOutput) || (min != kMinOutput)) {
-         m_drivePID.setOutputRange(min, max);
-         kMinOutput = min; kMaxOutput = max;
+            m_drivePID.setOutputRange(min, max);
+            kMinOutput = min; kMaxOutput = max;
          }
-    }
+        }
+
 
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
@@ -216,17 +221,23 @@ public class SwerveModule extends SubsystemBase {
      */
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize the reference state to avoid spinning further than 90 degrees
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getTurnEncoderRadians()));
-        double LeftY = m_xboxController.getLeftY();
-        double maxrpm = 5767; 
-        double setpoint = LeftY * maxrpm;
-        final double signedAngleDifference = closestAngleCalculator(getTurnEncoderRadians(), state.angle.getRadians());
-        double rotateMotorPercentPower = signedAngleDifference / (2 * Math.PI); // proportion error control //2	        double maxrpm = 5767; 
-        m_drivePID.setReference(setpoint, CANSparkBase.ControlType.kVelocity);
-          m_turningMotor.set(1.6 * rotateMotorPercentPower);
+        SwerveModuleState correctedDesiredState = new SwerveModuleState();
+        correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
+        correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(0));
+        
+        
+        
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(correctedDesiredState, new Rotation2d(getTurnEncoderRadians()));
+        SmartDashboard.putNumber("Set Desired State Swerve Module Dev." + m_driveMotor.getDeviceId(), optimizedState.speedMetersPerSecond);
+        
+       
+        // final double signedAngleDifference = closestAngleCalculator(getTurnEncoderRadians(), state.angle.getRadians());
+        //double rotateMotorPercentPower = signedAngleDifference / (2 * Math.PI); // proportion error control //2	        double maxrpm = 5767; 
+        m_drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkBase.ControlType.kVelocity);
+        // m_driveMotor.set(state.speedMetersPerSecond);
+        //m_drivePID.setReference(setpointX, CANSparkBase.ControlType.kVelocity);
+        //  m_turningMotor.set(1.6 * rotateMotorPercentPower);
     
-        SmartDashboard.putNumber("SetPoint", setpoint);
-          SmartDashboard.putNumber("SetPoin32434234t", LeftY);
 
     }
 
