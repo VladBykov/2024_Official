@@ -4,7 +4,9 @@ import frc.robot.Constants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
@@ -38,6 +40,9 @@ public class Arm extends SubsystemBase {
       com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
   public CANSparkMax armRotationMtr2 = new CANSparkMax(Constants.armMotorChannel2,
       com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
+  public DoubleSolenoid solenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
+  public Compressor compressor =  new Compressor(PneumaticsModuleType.REVPH);
+
 
  // public int ArmPosition = 2;
   //public TalonFX armRotationMtr = new TalonFX(Constants.armMotorChannel2);
@@ -45,7 +50,7 @@ public class Arm extends SubsystemBase {
   public int ArmPosition = 1;
   public double ArmDegrees = 0;
   // scaled values in psi units
-  // double psi = pressureTransducer.get();
+  //double psi = pressureTransducer.get();
 
   // boolean pressureSwitch = phCompressor.getPressureSwitchValue();
   public Arm() {
@@ -69,7 +74,6 @@ public class Arm extends SubsystemBase {
 
   public void periodic() {
     // armRotationMtr1.follow(armRotationMtr2);
-
     SmartDashboard.putNumber("Arm Position", ArmPosition);
     SmartDashboard.putNumber("Arm Degrees", ArmDegrees);
     String jared = "Jared";
@@ -102,5 +106,11 @@ public class Arm extends SubsystemBase {
           }
         });
   }
-
+  public Command ToggleSolenoid() {
+    return runOnce(
+      () -> {
+      solenoid.toggle();
+      }
+    );
+  }
 }
