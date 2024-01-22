@@ -78,7 +78,7 @@ public class SwerveModule extends SubsystemBase {
     private double kD = 0;
     private double kIz = 0;
     private double kFF = 0.000015;
-    private double kMaxOutput = 0.1;
+    private double kMaxOutput = 1;
     private double kMinOutput = -kMaxOutput;
     // Gains are for example purposes only - must be determined for your own robot!
     private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(1, 0, 0,
@@ -225,10 +225,10 @@ public class SwerveModule extends SubsystemBase {
         correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
         correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(0));
         
-        SmartDashboard.putNumber("Set Desired State Swerve Module Dev." + m_driveMotor.getDeviceId(), correctedDesiredState.speedMetersPerSecond);
-
+        
         
         SwerveModuleState optimizedState = SwerveModuleState.optimize(correctedDesiredState, new Rotation2d(getTurnEncoderRadians()));
+        SmartDashboard.putNumber("Set Desired State Swerve Module Dev." + m_driveMotor.getDeviceId(), optimizedState.speedMetersPerSecond);
         
        
         // final double signedAngleDifference = closestAngleCalculator(getTurnEncoderRadians(), state.angle.getRadians());

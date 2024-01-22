@@ -35,7 +35,7 @@ public class DriveTrainPID extends SubsystemBase {
 
   public static boolean WheelLock = false;
   public boolean FieldRelativeEnable = true;
-  public static final double kMaxSpeed = 3.68; // WP this seemed to work don't know why // 3.68 meters per second or 12.1
+  public static final double kMaxChassisSpeed = 3.68; // WP this seemed to work don't know why // 3.68 meters per second or 12.1
                                             // ft/s (max speed of SDS Mk3 with Neo motor)
   public static final double kMaxAngularSpeed = Math.PI / 3; // 1/2 rotation per second
    public static final double kModuleMaxAngularAcceleration = Math.PI / 3;
@@ -158,8 +158,8 @@ public class DriveTrainPID extends SubsystemBase {
   @SuppressWarnings("ParameterName")
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean defenseHoldingMode) {
     
-    double chassisXSpeed = xSpeed * kMaxSpeed;
-    double chassisYSpeed = ySpeed * kMaxSpeed;
+    double chassisXSpeed = xSpeed * kMaxChassisSpeed;
+    double chassisYSpeed = ySpeed * kMaxChassisSpeed;
     
     SmartDashboard.putNumber("Commanded X Speed", chassisXSpeed);
     SmartDashboard.putNumber("Commanded Y Speed", chassisYSpeed);
@@ -194,7 +194,7 @@ public class DriveTrainPID extends SubsystemBase {
 
   }
   public void setModuleStates(SwerveModuleState[] swerveModuleStates){
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, SwerveModule.revMaxMotorMaxSpeed);
      m_frontRight.setDesiredState(swerveModuleStates[1]);
       m_frontLeft.setDesiredState(swerveModuleStates[0]);
       m_backLeft.setDesiredState(swerveModuleStates[2]);
