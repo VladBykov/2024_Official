@@ -133,10 +133,10 @@ public class DriveTrainPID extends SubsystemBase {
 
   public SwerveModulePosition[] GetModulePositions()
   {
-    SwerveModulePosition frontLeftPosition = new SwerveModulePosition(m_frontLeft.getDifferentState().speedMetersPerSecond, m_frontLeft.getState().angle);
-    SwerveModulePosition frontRightPosition =  new SwerveModulePosition(m_frontRight.getDifferentState().speedMetersPerSecond, m_frontRight.getState().angle);
-    SwerveModulePosition backLeftPosition =  new SwerveModulePosition(m_backLeft.getDifferentState().speedMetersPerSecond, m_backLeft.getState().angle);
-    SwerveModulePosition backRightPosition =  new SwerveModulePosition(m_backRight.getDifferentState().speedMetersPerSecond, m_backRight.getState().angle);
+    SwerveModulePosition frontLeftPosition = (m_frontLeft.getModulePosition());
+    SwerveModulePosition frontRightPosition = (m_frontRight.getModulePosition());
+    SwerveModulePosition backLeftPosition =  (m_backLeft.getModulePosition());
+    SwerveModulePosition backRightPosition =  (m_backRight.getModulePosition());
 
     return new SwerveModulePosition[]{
       frontLeftPosition,
@@ -254,10 +254,10 @@ public ChassisSpeeds GetChassisSpeeds(){
 }
 public SwerveModuleState[] getSwerveModuleStates(){
   return new SwerveModuleState[] {
-      m_frontLeft.getState(),
-      m_frontRight.getState(),
-      m_backLeft.getState(),
-      m_backRight.getState()
+      m_frontLeft.getModuleState(),
+      m_frontRight.getModuleState(),
+      m_backLeft.getModuleState(),
+      m_backRight.getModuleState()
   };
 }
 public Command  resetPose2d() {

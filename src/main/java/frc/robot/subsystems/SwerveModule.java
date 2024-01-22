@@ -190,18 +190,22 @@ public class SwerveModule extends SubsystemBase {
     }
 
     /**
-     * Returns the current state of the module.
+     * Returns the current velocity state of the module.
      *
      * @return The current state of the module.
      */
-    public SwerveModuleState getState() {
+    public SwerveModuleState getModuleState() {
         // the getVelocity() function normally returns RPM but is scaled in the
         // SwerveModule constructor to return actual wheel speed
         return new SwerveModuleState(m_driveEncoder.getVelocity(), new Rotation2d(getTurnEncoderRadians()));
     }
-//TODO figure this out 
-    public SwerveModuleState getDifferentState() { // TIMES 60 TO CONVERRT FROM MINUTES TO SECONDS
-        return new SwerveModuleState((m_driveEncoder.getPosition() - encoderBias) * rpmToVelocityScaler * 60,
+
+    /**
+     * 
+     * @return Position of the drive motor and the orientation of the turning motor
+     */
+    public SwerveModulePosition getModulePosition() { // TIMES 60 TO CONVERRT FROM MINUTES TO SECONDS
+        return new SwerveModulePosition((m_driveEncoder.getPosition() - encoderBias) * rpmToVelocityScaler * 60,
                 new Rotation2d(getTurnEncoderRadians()));
    }
 
