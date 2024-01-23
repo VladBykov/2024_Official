@@ -150,6 +150,7 @@ public class SwerveModule extends SubsystemBase {
         m_TurnPWMEncoder = new DutyCycle(m_TurnEncoderInput);
         turnEncoderOffset = turnOffset;
         m_turningEncoder = new DutyCycleEncoder(m_TurnPWMEncoder);
+        m_turningEncoder.setDistancePerRotation((2 * Math.PI) /Constants.MagEncoderCountsPerRev);
 
         // Limit the PID Controller's input range between -pi and pi and set the input
         // to be continuous.
@@ -220,6 +221,12 @@ public class SwerveModule extends SubsystemBase {
      * @param desiredState Desired state with speed and angle.
      */
     public void setDesiredState(SwerveModuleState desiredState) {
+        Rotation2d encoderRotation = new Rotation2d(m_turningEncoder.getDistance());
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, encoderRotation);
+        state.speedMetersPerSecond *= state.angle.minus(encoderRotation).getCos();
+        
+       
+       
         // Optimize the reference state to avoid spinning further than 90 degrees
         SwerveModuleState correctedDesiredState = new SwerveModuleState();
         correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
@@ -234,6 +241,10 @@ public class SwerveModule extends SubsystemBase {
         // final double signedAngleDifference = closestAngleCalculator(getTurnEncoderRadians(), state.angle.getRadians());
         //double rotateMotorPercentPower = signedAngleDifference / (2 * Math.PI); // proportion error control //2	        double maxrpm = 5767; 
         m_drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkBase.ControlType.kVelocity);
+        final double turnOutput =
+        m_turningPIDController.calculate(m_turningEncoder.getDistance(), state.angle.getRadians());
+        m_turningMotor.set(turnOutput);
+
         // m_driveMotor.set(state.speedMetersPerSecond);
         //m_drivePID.setReference(setpointX, CANSparkBase.ControlType.kVelocity);
         //  m_turningMotor.set(1.6 * rotateMotorPercentPower);
