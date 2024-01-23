@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 import frc.robot.subsystems.*;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -34,6 +35,8 @@ import edu.wpi.first.wpilibj.XboxController;
  * It is called by the Drivetrain subsysem
  */
 public class SwerveModule extends SubsystemBase {
+  
+  private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
 
    // private static final double rpstoPositionScaler = (Constants.kWheelCircumference * Constants.driveEncoderCtsperRev)
     //        / (2 * Math.PI);// (Constants.kWheelDiameterM * Constants.NeoEncoderCountsPerRev) /
@@ -150,7 +153,7 @@ public class SwerveModule extends SubsystemBase {
         m_TurnPWMEncoder = new DutyCycle(m_TurnEncoderInput);
         turnEncoderOffset = turnOffset;
         m_turningEncoder = new DutyCycleEncoder(m_TurnPWMEncoder);
-        m_turningEncoder.setDistancePerRotation((2 * Math.PI) /Constants.MagEncoderCountsPerRev);
+        //m_turningEncoder.setDistancePerRotation((2 * Math.PI) /Constants.MagEncoderCountsPerRev);
 
         // Limit the PID Controller's input range between -pi and pi and set the input
         // to be continuous.
@@ -159,6 +162,7 @@ public class SwerveModule extends SubsystemBase {
 
         m_driveEncoder.setPosition(0);
         m_turningEncoder.reset();
+        m_turningPIDController.reset(0);
     }
 
     public void periodic() {
@@ -238,16 +242,39 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber("Set Desired State Swerve Module Dev." + m_driveMotor.getDeviceId(), optimizedState.speedMetersPerSecond);
         
        
-        // final double signedAngleDifference = closestAngleCalculator(getTurnEncoderRadians(), state.angle.getRadians());
-        //double rotateMotorPercentPower = signedAngleDifference / (2 * Math.PI); // proportion error control //2	        double maxrpm = 5767; 
+        final double signedAngleDifference = closestAngleCalculator(getTurnEncoderRadians(), state.angle.getRadians());
+        double rotateMotorPercentPower = signedAngleDifference / (2 * Math.PI); // proportion error control //2	        double maxrpm = 5767; 
         m_drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkBase.ControlType.kVelocity);
+
+
+
+
+
+
+
         final double turnOutput =
         m_turningPIDController.calculate(m_turningEncoder.getDistance(), state.angle.getRadians());
-        m_turningMotor.set(turnOutput);
+
+        final double turnFeedforward =
+        m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
+
+
+        m_turningMotor.setVoltage(turnOutput + turnFeedforward);
+
+
+
+
+
+
+
+
+
+
+        //m_turningMotor.set(turnOutput);
 
         // m_driveMotor.set(state.speedMetersPerSecond);
         //m_drivePID.setReference(setpointX, CANSparkBase.ControlType.kVelocity);
-        //  m_turningMotor.set(1.6 * rotateMotorPercentPower);
+
     
 
     }
