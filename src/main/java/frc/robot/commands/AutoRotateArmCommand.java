@@ -34,7 +34,7 @@ public class AutoRotateArmCommand extends Command {
     if (m_Arm.ArmPosition == 1) { // The target position for 0 = Lower, 1 = pickup, 2 = Drop
       // targetDegrees = Constants.Positions[0];
       // m_Arm.armRotationMtr.set(ControlMode.PercentOutput, -1);
-      m_Arm.armRotationMtr2.set(-1);
+      //m_Arm.armRotationMtr2.set(-1);
       // m_Arm.armRotationMtr1.set(-1);
       // System.out.println("JGANG$:");
       // System.out.println(m_Arm.armRotationMtr2.get());
@@ -46,7 +46,7 @@ public class AutoRotateArmCommand extends Command {
       // System.out.println("KKKKKKKKKKKKKKKKKKK");
       // System.out.println(m_Arm.armRotationMtr2.get());
     } else if (m_Arm.ArmPosition == 3) {
-      m_Arm.armRotationMtr2.set(1);
+      //m_Arm.armRotationMtr2.set(1);
       // m_Arm.armRotationMtr1.set(1);
       // System.out.println("JAJSJSJDJASJD");
       // System.out.println(m_Arm.armRotationMtr2.get());

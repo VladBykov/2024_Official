@@ -54,7 +54,6 @@ public class RobotContainer {
 
   JoystickButton driverButtonRight = new JoystickButton(driverController, Constants.buttonRight);
   JoystickButton driverButtonLeft = new JoystickButton(driverController, Constants.buttonLeft);
-  JoystickButton driverButtonOption = new JoystickButton(driverController, Constants.buttonOptions);
   // Constants.buttonX);
   JoystickButton driverButtonX = new JoystickButton(driverController, Constants.buttonX);
   JoystickButton driverButtonRS = new JoystickButton(driverController, Constants.buttonRS);
@@ -115,8 +114,8 @@ public class RobotContainer {
     m_Arm.setDefaultCommand(new AutoRotateArmCommand(m_Arm));
     manipButtonLeft.onTrue(m_Arm.LowerArm()); // starts at 1 (5 deegrees) goes down
     manipButtonRight.onTrue(m_Arm.RaiseArm());
-    driverButtonOption.onTrue(m_DriveTrainPID.resetPose2d()); // starts at 1, when pressed goes up to 2 (82 Deegrees),
-    manipButtonOptions.onTrue(m_Arm.ToggleSolenoid());
+    manipButtonA.onTrue(m_Arm.ToggleSolenoid());// starts at 1, when pressed goes up to 2 (82 Deegrees),
+    
                                                               // when pressed
     // again goes up to 3 (85 deegrees)
     // TODO RT Accelerate LT Deaccelerate

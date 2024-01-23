@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
-
 //import com.ctre.phoenix6.hardware.TalonFX;
 //import com.ctre.phoenix.motorcontrol.can.TalonFX;
 // import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -41,7 +40,7 @@ public class Arm extends SubsystemBase {
   public CANSparkMax armRotationMtr2 = new CANSparkMax(Constants.armMotorChannel2,
       com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
   public DoubleSolenoid solenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
-  public Compressor compressor =  new Compressor(PneumaticsModuleType.REVPH);
+ Compressor phCompressor =  new Compressor(PneumaticsModuleType.REVPH);
 
 
  // public int ArmPosition = 2;
@@ -54,6 +53,8 @@ public class Arm extends SubsystemBase {
 
   // boolean pressureSwitch = phCompressor.getPressureSwitchValue();
   public Arm() {
+    phCompressor.enableAnalog(60, 80);
+  
     // armRotationMtr1.setInverted(true);
     // armRotationMtr2.setInverted(true);
     // armRotationMtr.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
@@ -77,7 +78,7 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putNumber("Arm Position", ArmPosition);
     SmartDashboard.putNumber("Arm Degrees", ArmDegrees);
     String jared = "Jared";
-
+   System.out.println(phCompressor.getPressure());
   }
 
   // This is is an inline command construction. Commands which are so quick and
@@ -109,6 +110,7 @@ public class Arm extends SubsystemBase {
   public Command ToggleSolenoid() {
     return runOnce(
       () -> {
+      System.out.println("###############################");
       solenoid.set(Value.kReverse);
       solenoid.toggle();
       }
