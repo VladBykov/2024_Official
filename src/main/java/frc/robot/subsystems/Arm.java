@@ -109,6 +109,7 @@ public class Arm extends SubsystemBase {
   public Command ToggleSolenoid() {
     return runOnce(
       () -> {
+      solenoid.set(Value.kReverse);
       solenoid.toggle();
       }
     );
