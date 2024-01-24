@@ -36,7 +36,7 @@ import edu.wpi.first.wpilibj.XboxController;
  */
 public class SwerveModule extends SubsystemBase {
   
-  private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
+  private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(.0001, 0.00005);
 
    // private static final double rpstoPositionScaler = (Constants.kWheelCircumference * Constants.driveEncoderCtsperRev)
     //        / (2 * Math.PI);// (Constants.kWheelDiameterM * Constants.NeoEncoderCountsPerRev) /
@@ -84,7 +84,7 @@ public class SwerveModule extends SubsystemBase {
     private double kMaxOutput = 1;
     private double kMinOutput = -kMaxOutput;
     // Gains are for example purposes only - must be determined for your own robot!
-    private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(1, 0, 0,
+    private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(.01, 0, 0,
             new TrapezoidProfile.Constraints(kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
 
     /**
@@ -153,7 +153,7 @@ public class SwerveModule extends SubsystemBase {
         m_TurnPWMEncoder = new DutyCycle(m_TurnEncoderInput);
         turnEncoderOffset = turnOffset;
         m_turningEncoder = new DutyCycleEncoder(m_TurnPWMEncoder);
-        //m_turningEncoder.setDistancePerRotation((2 * Math.PI) /Constants.MagEncoderCountsPerRev);
+        m_turningEncoder.setDistancePerRotation((2 * Math.PI) /Constants.MagEncoderCountsPerRev);
 
         // Limit the PID Controller's input range between -pi and pi and set the input
         // to be continuous.
@@ -259,7 +259,7 @@ public class SwerveModule extends SubsystemBase {
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
 
-        m_turningMotor.setVoltage(turnOutput + turnFeedforward);
+        m_turningMotor.setVoltage(turnOutput - turnFeedforward);
 
 
 
