@@ -36,8 +36,7 @@ import edu.wpi.first.wpilibj.XboxController;
  */
 public class SwerveModule extends SubsystemBase {
   
-  private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(.0001, 0.00005);
-
+  
    // private static final double rpstoPositionScaler = (Constants.kWheelCircumference * Constants.driveEncoderCtsperRev)
     //        / (2 * Math.PI);// (Constants.kWheelDiameterM * Constants.NeoEncoderCountsPerRev) /
                             // (Constants.GearRatio * (Math.PI * 2));
@@ -84,7 +83,7 @@ public class SwerveModule extends SubsystemBase {
     private double kMaxOutput = 1;
     private double kMinOutput = -kMaxOutput;
     // Gains are for example purposes only - must be determined for your own robot!
-    private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(.01, 0, 0,
+    private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(.5, 0, 0,
             new TrapezoidProfile.Constraints(kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
 
     /**
@@ -254,13 +253,12 @@ public class SwerveModule extends SubsystemBase {
 
 
         final double turnOutput =
-        m_turningPIDController.calculate(m_turningEncoder.getDistance(), state.angle.getRadians());
+        m_turningPIDController.calculate(getModulePosition().angle.getRadians(), state.angle.getRadians());
 
-        final double turnFeedforward =
-        m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
-
-
-        m_turningMotor.setVoltage(turnOutput - turnFeedforward);
+      
+        SmartDashboard.putNumber("turn-Output" + m_turningMotor.getDeviceId(), turnOutput);
+        
+        m_turningMotor.set(turnOutput);
 
 
 
