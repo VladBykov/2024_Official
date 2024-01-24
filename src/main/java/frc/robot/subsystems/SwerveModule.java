@@ -163,6 +163,7 @@ public class SwerveModule extends SubsystemBase {
         m_driveEncoder.setPosition(0);
         m_turningEncoder.reset();
         m_turningPIDController.reset(0);
+        m_turningEncoder.setPositionOffset(0);;
     }
 
     public void periodic() {
