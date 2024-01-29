@@ -75,15 +75,15 @@ public class SwerveModule extends SubsystemBase {
 
     // pid stuff added 1-18-24
     public double m_NeoMaxRPM = Constants.NeoMaxRpm;
-    private double kP = 0.3;
+    private double kP = .55;
     private double kI = 0;
-    private double kD = 0;
+    private double kD = .02;
     private double kIz = 0;
     private double kFF = 0.000015;
     private double kMaxOutput = 1;
     private double kMinOutput = -kMaxOutput;
     // Gains are for example purposes only - must be determined for your own robot!
-    private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(.5, 0, 0,
+    private final ProfiledPIDController m_turningPIDController = new ProfiledPIDController(.8, 0, 0,
             new TrapezoidProfile.Constraints(kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
 
     /**
@@ -238,7 +238,7 @@ public class SwerveModule extends SubsystemBase {
         
         
         
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(correctedDesiredState, new Rotation2d(getTurnEncoderRadians()));
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(correctedDesiredState, new Rotation2d(getModulePosition().angle.getRadians()));
         SmartDashboard.putNumber("Set Desired State Swerve Module Dev." + m_driveMotor.getDeviceId(), optimizedState.speedMetersPerSecond);
         
        
