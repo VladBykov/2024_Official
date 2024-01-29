@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -224,7 +226,9 @@ public class DriveTrainPID extends SubsystemBase {
     SmartDashboard.putNumber("chassisSpeedsY", currentChassisSpeeds.vyMetersPerSecond);
     SmartDashboard.putNumber("chassisSpeedsROT", currentChassisSpeeds.omegaRadiansPerSecond);
     PathPlannerLogging.logCurrentPose(curentPose);
-    PathPlannerLogging.logActivePath(PathPlannerPath.fromPathFile("Forward Path"));
+    NetworkTableEntry currAuto  = SmartDashboard.getEntry("Auto Chooser");
+    // System.out.println(currAuto.getDouble(32));
+     PathPlannerLogging.logActivePath(PathPlannerPath.fromPathFile("Forward Path"));
     // SmartDashboard.putNumber();
     // SmartDashboard.putNumber();
     // SmartDashboard.putNumber();

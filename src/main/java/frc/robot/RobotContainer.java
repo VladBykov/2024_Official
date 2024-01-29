@@ -167,11 +167,11 @@ public class RobotContainer {
 
   private void configureShuffleboard() {
     // Add commands to the autonomous command chooser
-    m_chooser.setDefaultOption("Auto 1", 1);
-    m_chooser.addOption("Auto 2", 2);
-    m_chooser.addOption("Auto 3", 3);
+    // m_chooser.setDefaultOption("Auto 1", 1);
+    // m_chooser.addOption("Auto 2", 2);
+    // m_chooser.addOption("Auto 3", 3);
 
-    SmartDashboard.putData(m_chooser);
+    // SmartDashboard.putData(m_chooser);
 
     // SmartDashboard.putData(m_DriveTrainPID.GetPose2d().getTranslation());
 
@@ -182,7 +182,7 @@ public class RobotContainer {
        //return new PathPlannerAuto("New Auto");
       return new SequentialCommandGroup( 
         m_DriveTrainPID.resetPose2d(new Pose2d(1.00, 5.00, new Rotation2d(0))),
-        new WaitCommand(3.0),
+        new WaitCommand(0),
        autoChooser.getSelected()
       );
 
