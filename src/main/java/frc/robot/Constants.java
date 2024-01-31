@@ -81,4 +81,7 @@ public final class Constants {
     public static double length = 0.58;
     public static double width = 0.58;
 
+    // Hanger
+    public static int hangChannel = 33;
+
 }

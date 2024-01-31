@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
 /** Represents a swerve drive style drivetrain. */
 
@@ -57,6 +59,8 @@ public class DriveTrainPID extends SubsystemBase {
       Constants.brEncoderChannel, 0.9262); // 0.05178
   
 
+  public CANSparkMax hang_motor = new CANSparkMax(Constants.hangChannel, MotorType.kBrushless);
+  double hangSpeed = 0.75;
 
   // INITIAL POSITIONS to help define swerve drive odometry. THis was a headache
   public SwerveDriveKinematics m_initialStates;
@@ -309,4 +313,30 @@ return runOnce(
      m_backLeft.stop();    
         m_backRight.stop();
   }
+
+  public Command HangFwd(){
+      return runOnce(
+        () -> {
+          hang_motor.set(hangSpeed); 
+
+        });
+  }
+
+  
+  public Command HangBack(){
+      return runOnce(
+        () -> {
+          hang_motor.set(-hangSpeed); 
+
+        });
+  }
+
+   public Command HangStop(){
+      return runOnce(
+        () -> {
+          hang_motor.set(0.0); 
+
+        });
+  }
 }
+

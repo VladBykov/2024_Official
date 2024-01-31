@@ -57,6 +57,7 @@ public class RobotContainer {
   JoystickButton driverButtonOption = new JoystickButton(driverController, Constants.buttonOptions);
   // Constants.buttonX);
   JoystickButton driverButtonX = new JoystickButton(driverController, Constants.buttonX);
+  JoystickButton driverButtonY = new JoystickButton(driverController, Constants.buttonY);
   JoystickButton driverButtonRS = new JoystickButton(driverController, Constants.buttonRS);
   JoystickButton driverButtonLS = new JoystickButton(driverController, Constants.buttonLS);
   JoystickButton manipButtonB = new JoystickButton(manipController, Constants.buttonB);
@@ -110,6 +111,10 @@ public class RobotContainer {
     driverButtonRS.onTrue(m_DriveTrainPID.WheelzLock());
     driverButtonB.onTrue(m_DriveTrainPID.ZeroGyro());
     driverButtonA.onTrue(m_DriveTrainPID.toggleFieldRelativeEnable());
+    driverButtonX.whileTrue(m_DriveTrainPID.HangFwd());
+    driverButtonX.onFalse(m_DriveTrainPID.HangStop());
+    driverButtonY.whileTrue(m_DriveTrainPID.HangBack());
+    driverButtonY.onFalse(m_DriveTrainPID.HangStop());
     // WP - DO NOT UNCOMMENT WITHOUT TALKING TO WARD
     driverButtonOptions.onTrue(m_DriveTrainPID.resetPose2d());
     m_Arm.setDefaultCommand(new AutoRotateArmCommand(m_Arm));
