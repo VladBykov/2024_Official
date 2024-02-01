@@ -60,7 +60,7 @@ public class DriveTrainPID extends SubsystemBase {
   
 
   public CANSparkMax hang_motor = new CANSparkMax(Constants.hangChannel, MotorType.kBrushless);
-  double hangSpeed = 0.75;
+  double hangSpeed = 1.0;
 
   // INITIAL POSITIONS to help define swerve drive odometry. THis was a headache
   public SwerveDriveKinematics m_initialStates;
@@ -335,7 +335,6 @@ return runOnce(
       return runOnce(
         () -> {
           hang_motor.set(0.0); 
-
         });
   }
 }
