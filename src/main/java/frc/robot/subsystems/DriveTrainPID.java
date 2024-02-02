@@ -60,7 +60,8 @@ public class DriveTrainPID extends SubsystemBase {
   
 
   public CANSparkMax hang_motor = new CANSparkMax(Constants.hangChannel, MotorType.kBrushless);
-  double hangSpeed = 1.0;
+  public CANSparkMax hang_motor2 = new CANSparkMax(Constants.hangChannel2, MotorType.kBrushless);
+  double hangSpeed = 0.95;
 
   // INITIAL POSITIONS to help define swerve drive odometry. THis was a headache
   public SwerveDriveKinematics m_initialStates;
@@ -318,6 +319,8 @@ return runOnce(
       return runOnce(
         () -> {
           hang_motor.set(hangSpeed); 
+          hang_motor2.set(-hangSpeed);
+          System.out.println("1 forwards, 2 backwards");
 
         });
   }
@@ -326,7 +329,9 @@ return runOnce(
   public Command HangBack(){
       return runOnce(
         () -> {
-          hang_motor.set(-hangSpeed); 
+          hang_motor.set(-hangSpeed);
+          hang_motor2.set(hangSpeed); 
+          System.out.println("2 forwards, 1 backwards");
 
         });
   }
@@ -335,6 +340,7 @@ return runOnce(
       return runOnce(
         () -> {
           hang_motor.set(0.0); 
+          hang_motor2.set(0.0); 
         });
   }
 }

@@ -111,10 +111,15 @@ public class RobotContainer {
     driverButtonRS.onTrue(m_DriveTrainPID.WheelzLock());
     driverButtonB.onTrue(m_DriveTrainPID.ZeroGyro());
     driverButtonA.onTrue(m_DriveTrainPID.toggleFieldRelativeEnable());
-    driverButtonX.whileTrue(m_DriveTrainPID.HangFwd());
-    driverButtonX.onFalse(m_DriveTrainPID.HangStop());
+    
+    //sends it the othor direction
+    //driverButtonX.whileTrue(m_DriveTrainPID.HangFwd());
+    //driverButtonX.onFalse(m_DriveTrainPID.HangStop());
+    
+    //actully for shooter, not hang. will change this later
     driverButtonY.whileTrue(m_DriveTrainPID.HangBack());
     driverButtonY.onFalse(m_DriveTrainPID.HangStop());
+    
     // WP - DO NOT UNCOMMENT WITHOUT TALKING TO WARD
     driverButtonOptions.onTrue(m_DriveTrainPID.resetPose2d());
     m_Arm.setDefaultCommand(new AutoRotateArmCommand(m_Arm));

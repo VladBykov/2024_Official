@@ -83,5 +83,6 @@ public final class Constants {
 
     // Hanger
     public static int hangChannel = 11;
+    public static int hangChannel2 = 12;
 
 }
