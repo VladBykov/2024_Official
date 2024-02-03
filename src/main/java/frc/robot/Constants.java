@@ -81,8 +81,10 @@ public final class Constants {
     public static double length = 0.58;
     public static double width = 0.58;
 
-    // Hanger
+    // Shooter
     public static int hangChannel = 11;
     public static int hangChannel2 = 12;
-
+    public static int intakeChannel1 = 13;
+    public static int intakeChannel2 = 14;
+    public static int intakeChannel3 = 15;
 }

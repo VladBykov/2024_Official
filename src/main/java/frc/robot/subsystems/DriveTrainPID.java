@@ -61,6 +61,9 @@ public class DriveTrainPID extends SubsystemBase {
 
   public CANSparkMax hang_motor = new CANSparkMax(Constants.hangChannel, MotorType.kBrushless);
   public CANSparkMax hang_motor2 = new CANSparkMax(Constants.hangChannel2, MotorType.kBrushless);
+  public CANSparkMax intake_motor1 = new CANSparkMax(Constants.intakeChannel1, MotorType.kBrushless);
+  public CANSparkMax intake_motor2 = new CANSparkMax(Constants.intakeChannel2, MotorType.kBrushless);
+  public CANSparkMax intake_motor3 = new CANSparkMax(Constants.intakeChannel3, MotorType.kBrushless);
   double hangSpeed = 0.95;
 
   // INITIAL POSITIONS to help define swerve drive odometry. THis was a headache
@@ -315,15 +318,6 @@ return runOnce(
         m_backRight.stop();
   }
 
-  public Command HangFwd(){
-      return runOnce(
-        () -> {
-          hang_motor.set(hangSpeed); 
-          hang_motor2.set(-hangSpeed);
-          System.out.println("1 forwards, 2 backwards");
-
-        });
-  }
 
   
   public Command HangBack(){
@@ -339,9 +333,30 @@ return runOnce(
    public Command HangStop(){
       return runOnce(
         () -> {
-          hang_motor.set(0.0); 
-          hang_motor2.set(0.0); 
+          hang_motor.set(0.0); //stops motors 
+          hang_motor2.set(0.0);  
         });
   }
+    public Command Intake(){
+      return runOnce(
+
+      () -> {
+          intake_motor1.set(1); // intake 1
+          intake_motor2.set(1); // follows intake 1
+          intake_motor3.set(-1); //intake 2
+
+      });
+    }
+    public Command StopIntake(){
+      return runOnce(
+
+      () -> {
+        intake_motor1.set(0);
+        intake_motor2.set(0);
+        intake_motor3.set(0);
+
+    });
+
+}
 }
 

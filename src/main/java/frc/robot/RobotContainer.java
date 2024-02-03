@@ -45,7 +45,6 @@ public class RobotContainer {
   Arm m_Arm = new Arm();
   Stuff m_Stuff = new Stuff();
   Tags m_Tags = new Tags();
-
   XboxController driverController = new XboxController(Constants.DriverControllerChannel);
   XboxController manipController = new XboxController(Constants.ManipControllerChannel);
   JoystickButton driverButtonB = new JoystickButton(driverController, Constants.buttonB);
@@ -119,7 +118,12 @@ public class RobotContainer {
     //actully for shooter, not hang. will change this later
     driverButtonY.whileTrue(m_DriveTrainPID.HangBack());
     driverButtonY.onFalse(m_DriveTrainPID.HangStop());
-    
+    if( driverController.getPOV() ==270){
+      m_DriveTrainPID.Intake();
+    } else {
+      m_DriveTrainPID.StopIntake();
+    }
+
     // WP - DO NOT UNCOMMENT WITHOUT TALKING TO WARD
     driverButtonOptions.onTrue(m_DriveTrainPID.resetPose2d());
     m_Arm.setDefaultCommand(new AutoRotateArmCommand(m_Arm));
