@@ -50,7 +50,7 @@ public class RobotContainer {
   JoystickButton driverButtonB = new JoystickButton(driverController, Constants.buttonB);
   JoystickButton manipButtonA = new JoystickButton(manipController, Constants.buttonA);
   JoystickButton driverButtonA = new JoystickButton(driverController, Constants.buttonA);
-
+  Trigger intakeTrigger = new Trigger(() -> driverController.getPOV() == 270);
   JoystickButton driverButtonRight = new JoystickButton(driverController, Constants.buttonRight);
   JoystickButton driverButtonLeft = new JoystickButton(driverController, Constants.buttonLeft);
   JoystickButton driverButtonOption = new JoystickButton(driverController, Constants.buttonOptions);
@@ -110,20 +110,17 @@ public class RobotContainer {
     driverButtonRS.onTrue(m_DriveTrainPID.WheelzLock());
     driverButtonB.onTrue(m_DriveTrainPID.ZeroGyro());
     driverButtonA.onTrue(m_DriveTrainPID.toggleFieldRelativeEnable());
-    
-    //sends it the othor direction
-    //driverButtonX.whileTrue(m_DriveTrainPID.HangFwd());
-    //driverButtonX.onFalse(m_DriveTrainPID.HangStop());
-    
-    //actully for shooter, not hang. will change this later
+
+    // sends it the othor direction
+    // driverButtonX.whileTrue(m_DriveTrainPID.HangFwd());
+    // driverButtonX.onFalse(m_DriveTrainPID.HangStop());
+
+    // actully for shooter, not hang. will change this later
     driverButtonY.whileTrue(m_DriveTrainPID.HangBack());
     driverButtonY.onFalse(m_DriveTrainPID.HangStop());
-    if( driverController.getPOV() ==270){
-      m_DriveTrainPID.Intake();
-    } else {
-      m_DriveTrainPID.StopIntake();
-    }
 
+    intakeTrigger.onTrue(m_DriveTrainPID.Intake());
+    intakeTrigger.onFalse(m_DriveTrainPID.StopIntake());
     // WP - DO NOT UNCOMMENT WITHOUT TALKING TO WARD
     driverButtonOptions.onTrue(m_DriveTrainPID.resetPose2d());
     m_Arm.setDefaultCommand(new AutoRotateArmCommand(m_Arm));
@@ -149,25 +146,32 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    TrajectoryConfig trajectoryConfig = new TrajectoryConfig
-    (12.1, 8).setKinematics(Constants.m_kinematics); // we don't know our acceleration 
-   Trajectory trajectory = TrajectoryGenerator.generateTrajectory(new Pose2d(0,0,new Rotation2d(0)), List.of(new Translation2d(1,0), new Translation2d(1,-1)), new Pose2d(2, -1, Rotation2d.fromDegrees(180)),trajectoryConfig);
-  
-  
-  PIDController xController = new PIDController(1.5, 0, 0);
-  PIDController yController = new PIDController(1.5, 0, 0);
-  ProfiledPIDController thetaController = new ProfiledPIDController(3, 0,0, Constants.kthetaController);
+    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(12.1, 8).setKinematics(Constants.m_kinematics); // we don't
+                                                                                                             // know our
+                                                                                                             // acceleration
+    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(new Pose2d(0, 0, new Rotation2d(0)),
+        List.of(new Translation2d(1, 0), new Translation2d(1, -1)), new Pose2d(2, -1, Rotation2d.fromDegrees(180)),
+        trajectoryConfig);
 
-  SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-trajectory, m_DriveTrainPID::GetPose2d, Constants.m_kinematics, xController, yController, thetaController, m_DriveTrainPID::setModuleStates, m_DriveTrainPID);
+    PIDController xController = new PIDController(1.5, 0, 0);
+    PIDController yController = new PIDController(1.5, 0, 0);
+    ProfiledPIDController thetaController = new ProfiledPIDController(3, 0, 0, Constants.kthetaController);
 
-return new SequentialCommandGroup(new InstantCommand(() -> m_DriveTrainPID.resetOdometry(trajectory.getInitialPose())), swerveControllerCommand, new InstantCommand(() -> m_DriveTrainPID.stopModules()));
+    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+        trajectory, m_DriveTrainPID::GetPose2d, Constants.m_kinematics, xController, yController, thetaController,
+        m_DriveTrainPID::setModuleStates, m_DriveTrainPID);
 
-/*    Command autoSeq = Commands.sequence(
-        m_DriveTrainPID.ZeroGyro(),
-        Commands.waitSeconds(1.0),
-        new AutoCommand(m_DriveTrainPID, m_chooser.getSelected()));
-    return autoSeq;
-    // return new AutoCommand(m_DriveTrain);*/
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> m_DriveTrainPID.resetOdometry(trajectory.getInitialPose())), swerveControllerCommand,
+        new InstantCommand(() -> m_DriveTrainPID.stopModules()));
+
+    /*
+     * Command autoSeq = Commands.sequence(
+     * m_DriveTrainPID.ZeroGyro(),
+     * Commands.waitSeconds(1.0),
+     * new AutoCommand(m_DriveTrainPID, m_chooser.getSelected()));
+     * return autoSeq;
+     * // return new AutoCommand(m_DriveTrain);
+     */
   }
 }
