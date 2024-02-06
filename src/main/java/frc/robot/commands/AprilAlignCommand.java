@@ -15,6 +15,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
@@ -92,11 +94,14 @@ public class AprilAlignCommand extends Command {
 
     if (null != goalPose) {
       // Drive
-      xController.setGoal(goalPose.getX());
-      yController.setGoal(goalPose.getY());
-      omegaController.setGoal(goalPose.getRotation().getRadians());
+      xController.setGoal(0);
+      yController.setGoal(0);
+      omegaController.setGoal(0);
     }
     
+    // double xSpeed = xController.calculate(robotPose.getX());
+
+
     double xSpeed = xController.calculate(robotPose.getX());
     if (xController.atGoal()) {
       xSpeed = 0;

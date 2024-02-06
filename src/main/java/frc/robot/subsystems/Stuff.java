@@ -117,6 +117,11 @@ public class Stuff extends SubsystemBase {
         SmartDashboard.putNumber("AprilTag/pose/X", m_currentAprilTag.pose.getX());
         SmartDashboard.putNumber("AprilTag/pose/Y", m_currentAprilTag.pose.getY());
         SmartDashboard.putNumber("AprilTag/pose/Z", m_currentAprilTag.pose.getZ());
+        SmartDashboard.putNumber("AprilTag/rot/X", m_currentAprilTag.pose.getRotation().getQuaternion().getX());
+        SmartDashboard.putNumber("AprilTag/rot/Y", m_currentAprilTag.pose.getRotation().getQuaternion().getY());
+        SmartDashboard.putString("AprilTag/rot/Z", m_currentAprilTag.pose.toString());
+        // m_currentAprilTag.pose.getRotation().getAngle();
+
     }
     public AprilTag getCurrentAprilTag(){
         return m_currentAprilTag;
