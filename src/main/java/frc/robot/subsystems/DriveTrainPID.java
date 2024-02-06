@@ -323,8 +323,8 @@ return runOnce(
   public Command HangBack(){
       return runOnce(
         () -> {
-          hang_motor.set(-hangSpeed);
-          hang_motor2.set(hangSpeed); 
+          hang_motor.set(hangSpeed);
+          hang_motor2.set(-hangSpeed); 
           System.out.println("2 forwards, 1 backwards");
 
         });
