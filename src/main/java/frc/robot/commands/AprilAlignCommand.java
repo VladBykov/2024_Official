@@ -4,7 +4,10 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import org.opencv.core.Mat.Atable;
+
 import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -16,20 +19,22 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.TimestampedDoubleArray;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveTrainPID;
+import frc.robot.subsystems.Stuff;
 
 // TODO DO 1 PID AT A TIME !!!!!
 // WHAT I MEAN IS DO ROTATION, Y, then X.
 public class AprilAlignCommand extends Command {
   public static double ConstraintsConstant = 1; 
   public static double PIDConstant = 16; 
-    private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(2, 2); //TODO DO 1 PID AT A TIME !!!!!
-    private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(2, 2); // TODO DO 1 PID AT A TIME !!!!!
-    private static final TrapezoidProfile.Constraints OMEGA_CONSTRATINTS = new TrapezoidProfile.Constraints(8, 8); // TODO DO 1 PID AT A TIME !!!!!
+    private static final TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(0.4, 0.4); //TODO DO 1 PID AT A TIME !!!!!
+    private static final TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(0.4, 0.4); // TODO DO 1 PID AT A TIME !!!!!
+    private static final TrapezoidProfile.Constraints OMEGA_CONSTRATINTS = new TrapezoidProfile.Constraints(0.4, 0.4); // TODO DO 1 PID AT A TIME !!!!!
 
     private static final Transform2d TAG_TO_GOAL = new Transform2d(new Translation2d(1, 0),
             Rotation2d.fromDegrees(180)); //180
@@ -39,31 +44,44 @@ public class AprilAlignCommand extends Command {
     private final DriveTrainPID m_drivetrain;
     private final Supplier<AprilTag> m_aprilTagProvider;
 
-    private final ProfiledPIDController xController = new ProfiledPIDController(.8, 0, 0.0, X_CONSTRAINTS); //2 TODO DO 1 PID AT A TIME !!!!! 4/4
-    private final ProfiledPIDController yController = new ProfiledPIDController(.8, 0, 0.0, Y_CONSTRAINTS); //2 TODO DO 1 PID AT A TIME !!!!! 4/4
-    private final ProfiledPIDController omegaController = new ProfiledPIDController(0.4, 0, 0.0, OMEGA_CONSTRATINTS); //1 TODO DO 1 PID AT A TIME !!!!! 2/4
+    // private final ProfiledPIDController xController = new ProfiledPIDController(.25, 0, 0.0, X_CONSTRAINTS); //2 TODO DO 1 PID AT A TIME !!!!! 4/4
+    // private final ProfiledPIDController yController = new ProfiledPIDController(.25, 0, 0.0, Y_CONSTRAINTS); //2 TODO DO 1 PID AT A TIME !!!!! 4/4
+    // private final ProfiledPIDController omegaController = new ProfiledPIDController(0.25, 0, 0.0, OMEGA_CONSTRATINTS); //1 TODO DO 1 PID AT A TIME !!!!! 2/4
+
+    private final PIDController xController = new PIDController(.8, 0, 0.0); //2 TODO DO 1 PID AT A TIME !!!!! 4/4
+    private final PIDController yController = new PIDController(.25, 0, 0.0); //2 TODO DO 1 PID AT A TIME !!!!! 4/4
+    private final PIDController omegaController = new PIDController(0.005, 0, 0.0); //1 TODO DO 1 PID AT A TIME !!!!! 2/4
+
+
 
     private Pose2d goalPose;
+
+    Stuff ATag = new Stuff();
+    
 
     public AprilAlignCommand(Supplier<AprilTag> aprilTagSupplier, DriveTrainPID drivetrainSubsystem) {
         this.m_drivetrain = drivetrainSubsystem;
         this.m_aprilTagProvider = aprilTagSupplier;
 
-        xController.setTolerance(0.1);
-        yController.setTolerance(0.1);
-        omegaController.setTolerance(Units.degreesToRadians(3));
-        omegaController.enableContinuousInput(-1, 1);
+        xController.setTolerance(0.05);
+        yController.setTolerance(0.05);
+        omegaController.setTolerance(3);
+        //  omegaController.enableContinuousInput(-0.75, .75);
 
         addRequirements(drivetrainSubsystem);
+       
     }
 
     @Override
     public void initialize() {
         goalPose = null;
         var robotPose = m_drivetrain.getPose2d();
-        omegaController.reset(robotPose.getRotation().getRadians());
-        xController.reset(robotPose.getX());
-        yController.reset(robotPose.getY());
+        omegaController.reset();
+        xController.reset();
+        yController.reset();
+        xController.setSetpoint(0);
+        yController.setSetpoint(0);
+        omegaController.setSetpoint(0);
     }
 
   @Override
@@ -87,46 +105,48 @@ public class AprilAlignCommand extends Command {
     robotToCamera3d.getRotation().toRotation2d());
     Pose2d cameraPose = robotPose.transformBy(robotToCamera2d);
     Pose2d targetPose = cameraPose.transformBy(transform);
-    System.out.println(robotToCamera3d);
+    // System.out.println(transform.getRotation().getDegrees());
     
     // Transform the tag's pose to set our goal
     goalPose = targetPose.transformBy(TAG_TO_GOAL);
 
     if (null != goalPose) {
       // Drive
-      xController.setGoal(0);
-      yController.setGoal(0);
-      omegaController.setGoal(0);
+      xController.setSetpoint(0);
+      yController.setSetpoint(0);
+      omegaController.setSetpoint(0);
     }
     
-    // double xSpeed = xController.calculate(robotPose.getX());
-
-
-    double xSpeed = xController.calculate(robotPose.getX());
-    if (xController.atGoal()) {
+    double xSpeed = xController.calculate(ATag.poseArray.value[0]);
+    if (xController.atSetpoint()) {
       xSpeed = 0;
     }
-    
-    double ySpeed = yController.calculate(robotPose.getY());
-    if (yController.atGoal()) {
-      ySpeed = 0;
-    }
 
-    double omegaSpeed = omegaController.calculate(robotPose.getRotation().getRadians());
-    System.out.println(omegaSpeed);
-    if (omegaController.atGoal()) {
+    // double xSpeed = 0;
+    
+    // double ySpeed = yController.calculate(ATag.poseArray.value[1]);
+    // if (yController.atSetpoint()) {
+    //   ySpeed = 0;
+    // }
+    double ySpeed = 0;
+
+    double omegaSpeed = omegaController.calculate(ATag.poseArray.value[4]);
+    //System.out.println(omegaSpeed);
+    if (omegaController.atSetpoint()) {
       omegaSpeed = 0;
     }
+        System.out.println(omegaSpeed);
 
    // xSpeed = Math.min(xSpeed, kdriveMaxDriveSpeed);
     //ySpeed = Math.min(ySpeed, kdriveMaxDriveSpeed);
 
-    m_drivetrain.driveChassisSpeeds(
-      ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()));
-    
+    // m_drivetrain.driveChassisSpeeds(
+    //   ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation()));
+    m_drivetrain.drive(ySpeed, xSpeed, omegaSpeed);
     SmartDashboard.putNumber("FRxSpeed", xSpeed);
     SmartDashboard.putNumber("FRySpeed", ySpeed);
     SmartDashboard.putNumber("FRrotSpeed", omegaSpeed);
+    SmartDashboard.putNumber("LLrot", ATag.poseArray.value[4]);
     
   }
  

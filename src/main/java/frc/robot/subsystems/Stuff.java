@@ -26,6 +26,8 @@ public class Stuff extends SubsystemBase {
 
     private AprilTag m_currentAprilTag = new AprilTag(-1, null);
 
+    public TimestampedDoubleArray poseArray;
+
     public Stuff()
     {
         NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -71,7 +73,7 @@ public class Stuff extends SubsystemBase {
         //double[] result = posesub.get();
         //System.out.println(result);
 
-        TimestampedDoubleArray poseArray =  zstuff.getAtomic(); // (x, y, z, rotx, roty, rotz)
+        poseArray =  zstuff.getAtomic(); // (x, y, z, rotx, roty, rotz)
         Translation3d poseTranslation = new Translation3d(
             poseArray.value[0],  // x
             poseArray.value[1],  // y
@@ -114,14 +116,12 @@ public class Stuff extends SubsystemBase {
         SmartDashboard.putBoolean("Aligned?", isAligned);
         //SmartDashboard.putData((Sendable) aprilTagPose);
         SmartDashboard.putNumber("AprilTag/tagID",  m_currentAprilTag.ID);
-        SmartDashboard.putNumber("AprilTag/pose/X", m_currentAprilTag.pose.getX());
-        SmartDashboard.putNumber("AprilTag/pose/Y", m_currentAprilTag.pose.getY());
-        SmartDashboard.putNumber("AprilTag/pose/Z", m_currentAprilTag.pose.getZ());
-        SmartDashboard.putNumber("AprilTag/rot/X", m_currentAprilTag.pose.getRotation().getQuaternion().getX());
-        SmartDashboard.putNumber("AprilTag/rot/Y", m_currentAprilTag.pose.getRotation().getQuaternion().getY());
-        SmartDashboard.putString("AprilTag/rot/Z", m_currentAprilTag.pose.toString());
-        // m_currentAprilTag.pose.getRotation().getAngle();
-
+        SmartDashboard.putNumber("AprilTag/pose/Value 0",poseArray.value[0]);
+        SmartDashboard.putNumber("AprilTag/pose/value 1", poseArray.value[1]);
+        SmartDashboard.putNumber("AprilTag/pose/value 4",  poseArray.value[4]);
+        SmartDashboard.putNumber("AprilTag/pose/Value 2", poseArray.value[2]);
+        SmartDashboard.putNumber("AprilTag/pose/value 3", poseArray.value[5]);
+                SmartDashboard.putNumber("AprilTag/pose/value 3", poseArray.value[3]);
     }
     public AprilTag getCurrentAprilTag(){
         return m_currentAprilTag;
