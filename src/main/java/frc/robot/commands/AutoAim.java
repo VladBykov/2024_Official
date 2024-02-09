@@ -37,8 +37,19 @@ public class AutoAim extends Command {
       
       Pose2d targetPose = new Pose2d(
       botToTargetPose.getTranslation().toTranslation2d(),
-      Rotation2d.fromRadians(Math.atan2(botToTargetPose.getY(), botToTargetPose.getX()))
-    );
+      Rotation2d.fromRadians(Math.atan2(botToTargetPose.getY(), botToTargetPose.getX())));
+    if (botToTargetPose.getZ() >= 1.95 && botToTargetPose.getZ() <= 2.05){
+    // Shooter Rotates to desired angle/ position
+      }
+    else if (botToTargetPose.getZ() <= 1.95) {
+        // shooter corrects by moving up depending on its pose, Using PID
+      }
+    else if (botToTargetPose.getZ() >= 2) {
+        // shooter corrects by moving down depending on its pose, Using PID
+      }
+
+
+    
 /*  NEED TO DO:
         
     if botToTargetPose == ideal spot (whatever TagToGoal is)
