@@ -105,7 +105,6 @@ public class AprilAlignCommand extends Command {
     }
 
     double omegaSpeed = omegaController.calculate(robotPose.getRotation().getRadians());
-    System.out.println(omegaSpeed);
     if (omegaController.atGoal()) {
       omegaSpeed = 0;
     }
