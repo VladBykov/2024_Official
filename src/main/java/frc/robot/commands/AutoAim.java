@@ -19,10 +19,10 @@ import frc.robot.Constants;
 import frc.robot.subsystems.DriveTrainPID;
 import frc.robot.subsystems.Shooter;
 public class AutoAim extends Command {
-  BangBangController controller = new BangBangController();
     private final Supplier<AprilTag> m_aprilTagProvider;
     private final Shooter m_ShooterSub;
-    private final double TargetingAngle = 0;
+    private double TargetingAngle = 0;
+    private static final double TargetingTolerance = Units.radiansToDegrees(2);
     public AutoAim(Supplier<AprilTag> aprilTagSupplier, Shooter ShooterSub) {
      m_aprilTagProvider = aprilTagSupplier;
      m_ShooterSub = ShooterSub;
@@ -30,37 +30,31 @@ public class AutoAim extends Command {
     }
     public void execute (){
     
-    AprilTag m_aprilTag = m_aprilTagProvider.get();
-    Pose3d botToTargetPose = m_aprilTag.pose;
-    if (m_aprilTag.ID <= 0) { // is valid if > 0: we update our current estimate of where the april tag is relative to the robot
+    AprilTag aprilTag = m_aprilTagProvider.get();
+    Pose3d botToTargetPose = aprilTag.pose;
+    if (aprilTag.ID <= 0) { // is valid if > 0: we update our current estimate of where the april tag is relative to the robot
         m_ShooterSub.AimingMotor.set(0);
         return;
       }
       
-      Pose2d targetPose = new Pose2d(
-      botToTargetPose.getTranslation().toTranslation2d(),
-      Rotation2d.fromRadians(Math.atan2(botToTargetPose.getY(), botToTargetPose.getX())));
+    TargetingAngle = updateTargetAngleFromAprilTag(aprilTag); // update april tag targeting angle
     if (botToTargetPose.getX() >= 1.95 && botToTargetPose.getX() <= 2.05){
-      if (m_ShooterSub.AimingEncoder.getPosition() > TargetingAngle){
+      if (Math.abs(m_ShooterSub.AimingEncoder.getPosition() - TargetingAngle) <= TargetingTolerance){ // within bounds of goal angle
+        m_ShooterSub.AimingMotor.set(0);
+      }
+      else if (m_ShooterSub.AimingEncoder.getPosition() > TargetingAngle){
         m_ShooterSub.AimingMotor.set(-1);
       }
       else if (m_ShooterSub.AimingEncoder.getPosition() < TargetingAngle){
       m_ShooterSub.AimingMotor.set(1);
       }
-      else if (m_ShooterSub.AimingEncoder.getPosition() == TargetingAngle){
-      m_ShooterSub.AimingMotor.set(0);
-      }
     //set pos to perfect encoder val, No PID needed here (if im correct)
       
       }
-    else if (botToTargetPose.getX() <= 1.95) {
+    else{
       m_ShooterSub.AimingMotor.set(0);
         // shooter corrects by moving up depending on its pose, Using PID
-      }
-    else if (botToTargetPose.getX() >= 2.05) {
-      m_ShooterSub.AimingMotor.set(0);
-        // shooter corrects by moving down depending on its pose, Using PID
-      }
+    }
 
 
     
@@ -72,5 +66,8 @@ public class AutoAim extends Command {
         Do PID so that it is the ideal angle (Hits where our ideal spot is)
       ROUGH IDEA
 */
+    }
+    double updateTargetAngleFromAprilTag(AprilTag aprilTag){
+      return 0;
     }
 }
