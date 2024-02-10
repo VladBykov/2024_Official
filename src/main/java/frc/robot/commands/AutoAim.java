@@ -20,7 +20,7 @@ import frc.robot.subsystems.Shooter;
 public class AutoAim extends Command {
     private final Supplier<AprilTag> m_aprilTagProvider;
     private final Shooter m_ShooterSub;
-
+    private final int x = 0;
     public AutoAim(Supplier<AprilTag> aprilTagSupplier, Shooter ShooterSub) {
      m_aprilTagProvider = aprilTagSupplier;
      m_ShooterSub = ShooterSub;
@@ -39,12 +39,24 @@ public class AutoAim extends Command {
       botToTargetPose.getTranslation().toTranslation2d(),
       Rotation2d.fromRadians(Math.atan2(botToTargetPose.getY(), botToTargetPose.getX())));
     if (botToTargetPose.getZ() >= 1.95 && botToTargetPose.getZ() <= 2.05){
-    // Shooter Rotates to desired angle/ position
+      if (m_ShooterSub.AimingEncoder.getPosition() > x){
+        m_ShooterSub.AimingMotor.set(-1);
+      }
+      else if (m_ShooterSub.AimingEncoder.getPosition() < x){
+      m_ShooterSub.AimingMotor.set(1);
+      }
+      else if (m_ShooterSub.AimingEncoder.getPosition() == x){
+      m_ShooterSub.AimingMotor.set(0);
+      }
+    //set pos to perfect encoder val, No PID needed here (if im correct)
+      
       }
     else if (botToTargetPose.getZ() <= 1.95) {
+      m_ShooterSub.AimingMotor.set(0);
         // shooter corrects by moving up depending on its pose, Using PID
       }
-    else if (botToTargetPose.getZ() >= 2) {
+    else if (botToTargetPose.getZ() >= 2.05) {
+      m_ShooterSub.AimingMotor.set(0);
         // shooter corrects by moving down depending on its pose, Using PID
       }
 
