@@ -44,6 +44,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Tags;
 import frc.robot.subsystems.Stuff;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.subsystems.Shooter;
 //add in later
 //import frc.robot.commands.AprilAlignCommand;
 
@@ -52,6 +53,7 @@ public class RobotContainer {
   Arm m_Arm = new Arm();
   Stuff m_Stuff = new Stuff();
   Tags m_Tags = new Tags();
+  Shooter m_Shooter = new Shooter();
 
   XboxController driverController = new XboxController(Constants.DriverControllerChannel);
   XboxController manipController = new XboxController(Constants.ManipControllerChannel);
@@ -124,7 +126,11 @@ public class RobotContainer {
     // frc.robot.subsystems.Tags.tx2));
     // driverButtonB.whileTrue(new FieldAlignedCommand(m_DriveTrain));
     driverButtonRS.onTrue(m_DriveTrainPID.WheelzLock());
-    driverButtonB.onTrue(m_DriveTrainPID.ZeroGyro());
+    
+    driverButtonB.onTrue(m_Shooter.RunShootingMotorAuto());
+    driverButtonB.onFalse(m_Shooter.StopShootingMotorAuto());
+
+
     driverButtonA.onTrue(m_DriveTrainPID.toggleFieldRelativeEnable());
     // WP - DO NOT UNCOMMENT WITHOUT TALKING TO WARD
     driverButtonOptions.onTrue(m_DriveTrainPID.resetPose2d());

@@ -50,9 +50,22 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 public class Shooter extends SubsystemBase {
+    //set values here, hopefully this makes it easier
+
+    int mtr1 = 0;
+    //motor channel
+    int mtr1spd = 0;
+    //motor speed
+
+    int mtr2 = 0;
+    //motor channel
+    int mtr2spd = 0;
+    //motor speed
+
+
     public CANSparkMax AimingMotor = new CANSparkMax(14, CANSparkLowLevel.MotorType.kBrushless);
-    public CANSparkMax ShootingMotor1  = new CANSparkMax(15, CANSparkLowLevel.MotorType.kBrushless);
-    public CANSparkMax ShootingMotor2  = new CANSparkMax(16, CANSparkLowLevel.MotorType.kBrushless);
+    public CANSparkMax ShootingMotor1  = new CANSparkMax(mtr1, CANSparkLowLevel.MotorType.kBrushless);
+    public CANSparkMax ShootingMotor2  = new CANSparkMax(mtr2, CANSparkLowLevel.MotorType.kBrushless);
     public RelativeEncoder AimingEncoder = AimingMotor.getEncoder();
     public RelativeEncoder ShootingEncoder1 = ShootingMotor1.getEncoder();
     public RelativeEncoder ShootingEncoder2 = ShootingMotor2.getEncoder();
@@ -64,8 +77,8 @@ public class Shooter extends SubsystemBase {
     public Command RunShootingMotorAuto() {
         return run(
         () -> {
-           ShootingMotor1.set(1); 
-           ShootingMotor2.set(-1); 
+           ShootingMotor1.set(mtr1spd); 
+           ShootingMotor2.set(mtr2spd); 
         }
         );
     }
