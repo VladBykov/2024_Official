@@ -19,6 +19,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.DriveTrainPID;
 import frc.robot.subsystems.Shooter;
 public class AutoAim extends Command {
+  // Angle motor for shooting file
     private final Supplier<AprilTag> m_aprilTagProvider;
     private final Shooter m_ShooterSub;
     private double TargetingAngle = 0;
